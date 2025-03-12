@@ -13,14 +13,6 @@
         android:theme="@style/Theme.MetropolitanMuseum"
         tools:targetApi="31">
         <activity
-            android:name=".search.SearchActivity"
-            android:exported="false">
-        </activity>
-        <activity
-            android:name=".detail.DetailActivity"
-            android:exported="false">
-        </activity>
-        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
