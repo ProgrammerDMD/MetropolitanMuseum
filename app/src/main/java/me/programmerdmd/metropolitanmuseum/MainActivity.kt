@@ -35,54 +35,21 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun BottomNavigationBar() {
-    NavigationBar {
-        // Home Button
-        NavigationBarItem(
-            icon = {
-                Icon(imageVector = Icons.Filled.Home, contentDescription = "Home")
-            },
-            label = {
-                Text("Home")
-            },
-            selected = true,
-            onClick = {}
-        )
-
-        // Favorites Button
-        NavigationBarItem(
-            icon = {
-                Icon(imageVector = Icons.Filled.StarBorder, contentDescription = "Favorites")
-            },
-            label = {
-                Text("Favorites")
-            },
-            selected = false,
-            onClick = {}
-        )
-    }
-}
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-    Scaffold(bottomBar = {
-        BottomNavigationBar()
-    }) {
-        NavHost(navController = navController, startDestination = HomeRoute) {
-            composable<HomeRoute> {
-                HomeScreen(onSearch = {
-                    navController.navigate(route = SearchRoute)
-                })
-            }
-            composable<SearchRoute> {
-                SearchScreen()
-            }
-            composable<DetailRoute> {
-                DetailScreen()
-            }
+    NavHost(navController = navController, startDestination = HomeRoute) {
+        composable<HomeRoute> {
+            HomeScreen(onSearch = {
+                navController.navigate(route = SearchRoute)
+            })
+        }
+        composable<SearchRoute> {
+            SearchScreen()
+        }
+        composable<DetailRoute> {
+            DetailScreen()
         }
     }
 }
