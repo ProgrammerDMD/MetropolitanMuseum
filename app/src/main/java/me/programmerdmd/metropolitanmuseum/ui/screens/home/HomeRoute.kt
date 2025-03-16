@@ -1,4 +1,4 @@
-package me.programmerdmd.metropolitanmuseum.home
+package me.programmerdmd.metropolitanmuseum.ui.screens.home
 
 import kotlinx.serialization.Serializable
 

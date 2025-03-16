@@ -1,4 +1,4 @@
-package me.programmerdmd.metropolitanmuseum.detail
+package me.programmerdmd.metropolitanmuseum.ui.screens.detail
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable

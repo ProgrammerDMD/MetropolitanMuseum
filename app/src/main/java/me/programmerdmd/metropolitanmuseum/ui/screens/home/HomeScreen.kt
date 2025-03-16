@@ -1,8 +1,9 @@
-package me.programmerdmd.metropolitanmuseum.home
+package me.programmerdmd.metropolitanmuseum.ui.screens.home
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.StarBorder
@@ -68,6 +69,18 @@ private fun BottomBar() {
                 Text("Home")
             },
             selected = true,
+            onClick = {}
+        )
+
+        // Trending Button
+        NavigationBarItem(
+            icon = {
+                Icon(imageVector = Icons.AutoMirrored.Filled.TrendingUp, contentDescription = "Trending")
+            },
+            label = {
+                Text("Trending")
+            },
+            selected = false,
             onClick = {}
         )
 

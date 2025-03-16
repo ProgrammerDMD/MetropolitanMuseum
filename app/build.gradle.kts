@@ -2,7 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    kotlin("plugin.serialization") version "2.0.21"
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -62,6 +63,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
 
     // Jetpack Compose integration
     implementation(libs.androidx.navigation.compose)
@@ -81,4 +84,18 @@ dependencies {
 
     // Material Icons
     implementation(libs.androidx.material.icons.extended)
+
+    // Moshi
+    implementation(libs.moshi.core)
+    implementation(libs.moshi.adapters)
+    ksp(libs.moshi.annotationProcessor)
+
+    // Retrofit
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.moshiConverter)
+    implementation(libs.retrofit.loggingInterceptor)
+
+    // Koin
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose)
 }

@@ -5,24 +5,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.StarBorder
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import me.programmerdmd.metropolitanmuseum.detail.DetailRoute
-import me.programmerdmd.metropolitanmuseum.detail.DetailScreen
-import me.programmerdmd.metropolitanmuseum.home.HomeRoute
-import me.programmerdmd.metropolitanmuseum.home.HomeScreen
-import me.programmerdmd.metropolitanmuseum.search.SearchRoute
-import me.programmerdmd.metropolitanmuseum.search.SearchScreen
+import me.programmerdmd.metropolitanmuseum.ui.screens.detail.DetailRoute
+import me.programmerdmd.metropolitanmuseum.ui.screens.detail.DetailScreen
+import me.programmerdmd.metropolitanmuseum.ui.screens.home.HomeRoute
+import me.programmerdmd.metropolitanmuseum.ui.screens.home.HomeScreen
+import me.programmerdmd.metropolitanmuseum.ui.screens.search.SearchRoute
+import me.programmerdmd.metropolitanmuseum.ui.screens.search.SearchScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -39,14 +33,20 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = HomeRoute) {
+    NavHost(
+        navController = navController,
+        startDestination = HomeRoute,
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None }) {
         composable<HomeRoute> {
             HomeScreen(onSearch = {
                 navController.navigate(route = SearchRoute)
             })
         }
         composable<SearchRoute> {
-            SearchScreen()
+            SearchScreen(onNavigateBack = {
+                navController.popBackStack()
+            })
         }
         composable<DetailRoute> {
             DetailScreen()
