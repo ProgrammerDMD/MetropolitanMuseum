@@ -1,17 +1,24 @@
 package me.programmerdmd.metropolitanmuseum.ui.screens.search
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,31 +35,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import me.programmerdmd.metropolitanmuseum.objects.api.MuseumObject
 import me.programmerdmd.metropolitanmuseum.ui.theme.MetropolitanMuseumTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun SearchScreen(onNavigateBack: () -> Unit) {
+fun SearchScreen(onNavigateBack: () -> Unit, viewModel: SearchViewModel = koinViewModel()) {
     MetropolitanMuseumTheme {
         Scaffold(
-            topBar = { TopBar(onNavigateBack) },
+            topBar = {
+                TopBar(onNavigateBack)
+            },
         ) { innerPadding ->
-            LazyVerticalGrid(modifier = Modifier.padding(innerPadding), columns = GridCells.Adaptive(minSize = 128.dp),
-                contentPadding = PaddingValues(18.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Add 5 items
-                items(5) { index ->
-                    ElevatedCardExample()
-                }
-            }
+            LoadingComponent(modifier = Modifier.padding(innerPadding))
+            ItemsComponent(modifier = Modifier.padding(innerPadding))
         }
     }
 }
@@ -61,6 +64,7 @@ fun SearchScreen(onNavigateBack: () -> Unit) {
 @Composable
 private fun TopBar(onNavigateBack: () -> Unit, viewModel: SearchViewModel = koinViewModel()) {
     var text by remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
 
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -69,18 +73,33 @@ private fun TopBar(onNavigateBack: () -> Unit, viewModel: SearchViewModel = koin
         ),
         title = {
             TextField(
+                modifier = Modifier.fillMaxWidth(),
                 value = text,
                 singleLine = true,
-                leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = "Search") },
                 placeholder = { Text(text = "Search for an object") },
                 onValueChange = { newText -> text = newText },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.Transparent,
                     focusedContainerColor = Color.Transparent
                 ),
+                trailingIcon = {
+                    if (text.isNotEmpty()) {
+                        IconButton(onClick = {
+                            text = ""
+                            viewModel.clear()
+                            focusManager.clearFocus()
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = "Clear Query"
+                            )
+                        }
+                    }
+                },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = {
                     viewModel.search(text)
+                    focusManager.clearFocus()
                 })
             )
         },
@@ -96,29 +115,64 @@ private fun TopBar(onNavigateBack: () -> Unit, viewModel: SearchViewModel = koin
 }
 
 @Composable
-fun ElevatedCardExample() {
-    ElevatedCard(
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
-        ),
-        modifier = Modifier
-            .size(width = 240.dp, height = 100.dp)
-    ) {
-        Text(
-            text = "Elevated",
-            modifier = Modifier
-                .padding(16.dp),
-            textAlign = TextAlign.Center,
+fun LoadingComponent(modifier: Modifier = Modifier, viewModel: SearchViewModel = koinViewModel()) {
+    val state = viewModel.searchResult.collectAsStateWithLifecycle()
+    if (!state.value.searching) return
+
+    Column(modifier = modifier.fillMaxWidth().fillMaxHeight(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center) {
+        CircularProgressIndicator(
+            modifier = Modifier.width(64.dp),
+            color = MaterialTheme.colorScheme.secondary,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant,
         )
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier, viewModel: SearchViewModel = koinViewModel()) {
-    var result = viewModel.searchResult.collectAsStateWithLifecycle()
+fun ItemsComponent(modifier: Modifier = Modifier, viewModel: SearchViewModel = koinViewModel()) {
+    val result = viewModel.searchResult.collectAsStateWithLifecycle()
+    if (result.value.searching) return;
 
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+    LazyVerticalGrid(modifier = modifier, columns = GridCells.Adaptive(minSize = 256.dp),
+        contentPadding = PaddingValues(18.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Add 5 items
+        items(result.value.result.size) { index ->
+            ElevatedCardExample(result.value.result.get(index))
+        }
+    }
+}
+
+@Composable
+fun ElevatedCardExample(item: MuseumObject) {
+    ElevatedCard(
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 6.dp
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Text(
+                text = item.date,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.secondary
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "This is a brief description that gives more detail about the content of the card.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = { /* TODO: Handle click action */ }) {
+                Text(text = "More Details")
+            }
+        }
+    }
 }

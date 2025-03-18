@@ -24,7 +24,11 @@ class SearchRepositoryImpl() : SearchRepository {
             throw Exception("Search failed!")
         }
 
-        return@withContext searchObject.objectIDs.take(10).map {
+        if (searchObject.objectIDs == null) {
+            return@withContext emptyList()
+        }
+
+        return@withContext searchObject.objectIDs.take(3).map {
             async {
                 api.getObject(it)
             }
