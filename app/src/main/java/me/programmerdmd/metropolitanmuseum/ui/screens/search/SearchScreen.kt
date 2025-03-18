@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -39,7 +40,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.programmerdmd.metropolitanmuseum.objects.api.MuseumObject
@@ -47,7 +52,7 @@ import me.programmerdmd.metropolitanmuseum.ui.theme.MetropolitanMuseumTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun SearchScreen(onNavigateBack: () -> Unit, viewModel: SearchViewModel = koinViewModel()) {
+fun SearchScreen(onNavigateBack: () -> Unit) {
     MetropolitanMuseumTheme {
         Scaffold(
             topBar = {
@@ -77,7 +82,12 @@ private fun TopBar(onNavigateBack: () -> Unit, viewModel: SearchViewModel = koin
                 value = text,
                 singleLine = true,
                 placeholder = { Text(text = "Search for an object") },
-                onValueChange = { newText -> text = newText },
+                onValueChange = { newText ->
+                    run {
+                        text = newText
+                        viewModel.search(text)
+                    }
+                },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.Transparent,
                     focusedContainerColor = Color.Transparent
@@ -86,7 +96,7 @@ private fun TopBar(onNavigateBack: () -> Unit, viewModel: SearchViewModel = koin
                     if (text.isNotEmpty()) {
                         IconButton(onClick = {
                             text = ""
-                            viewModel.clear()
+                            viewModel.search(text)
                             focusManager.clearFocus()
                         }) {
                             Icon(
@@ -116,12 +126,13 @@ private fun TopBar(onNavigateBack: () -> Unit, viewModel: SearchViewModel = koin
 
 @Composable
 fun LoadingComponent(modifier: Modifier = Modifier, viewModel: SearchViewModel = koinViewModel()) {
-    val state = viewModel.searchResult.collectAsStateWithLifecycle()
-    if (!state.value.searching) return
+    val queryState = viewModel.queryFlow.collectAsStateWithLifecycle()
+    val state = viewModel.searching.collectAsStateWithLifecycle()
+    if (!state.value || queryState.value.isBlank()) return
 
     Column(modifier = modifier.fillMaxWidth().fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center) {
+        verticalArrangement = Arrangement.Center,) {
         CircularProgressIndicator(
             modifier = Modifier.width(64.dp),
             color = MaterialTheme.colorScheme.secondary,
@@ -132,17 +143,30 @@ fun LoadingComponent(modifier: Modifier = Modifier, viewModel: SearchViewModel =
 
 @Composable
 fun ItemsComponent(modifier: Modifier = Modifier, viewModel: SearchViewModel = koinViewModel()) {
-    val result = viewModel.searchResult.collectAsStateWithLifecycle()
-    if (result.value.searching) return;
+    val queryState = viewModel.queryFlow.collectAsStateWithLifecycle()
+    val resultsState = viewModel.results.collectAsStateWithLifecycle()
+    val searchingState = viewModel.searching.collectAsStateWithLifecycle()
+    if (searchingState.value || queryState.value.isBlank()) return
 
     LazyVerticalGrid(modifier = modifier, columns = GridCells.Adaptive(minSize = 256.dp),
         contentPadding = PaddingValues(18.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Add 5 items
-        items(result.value.result.size) { index ->
-            ElevatedCardExample(result.value.result.get(index))
+        item {
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("${resultsState.value.size}")
+                    }
+                    append(" have been found")
+                },
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+        }
+        itemsIndexed(resultsState.value) { index, item ->
+            ElevatedCardExample(item)
         }
     }
 }
@@ -160,15 +184,15 @@ fun ElevatedCardExample(item: MuseumObject) {
                 style = MaterialTheme.typography.headlineSmall
             )
             Text(
-                text = item.date,
+                text = item.date + ", " + item.artist,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.secondary
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "This is a brief description that gives more detail about the content of the card.",
-                style = MaterialTheme.typography.bodyMedium
-            )
+//            Spacer(modifier = Modifier.height(8.dp))
+//            Text(
+//                text = "This is a brief description that gives more detail about the content of the card.",
+//                style = MaterialTheme.typography.bodyMedium
+//            )
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = { /* TODO: Handle click action */ }) {
                 Text(text = "More Details")

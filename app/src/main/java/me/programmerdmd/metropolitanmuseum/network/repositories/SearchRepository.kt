@@ -28,7 +28,7 @@ class SearchRepositoryImpl() : SearchRepository {
             return@withContext emptyList()
         }
 
-        return@withContext searchObject.objectIDs.take(3).map {
+        return@withContext searchObject.objectIDs.take(10).map {
             async {
                 api.getObject(it)
             }
