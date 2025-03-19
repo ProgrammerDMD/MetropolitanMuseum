@@ -1,5 +1,7 @@
 package me.programmerdmd.metropolitanmuseum.ui.screens.search
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -47,12 +49,18 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
+import me.programmerdmd.metropolitanmuseum.R
 import me.programmerdmd.metropolitanmuseum.objects.api.MuseumObject
 import me.programmerdmd.metropolitanmuseum.ui.theme.MetropolitanMuseumTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun SearchScreen(onNavigateBack: () -> Unit) {
+fun SearchScreen(onNavigateBack: () -> Unit,
+                 onNavigateToDetail: (objectId: Int) -> Unit) {
     MetropolitanMuseumTheme {
         Scaffold(
             topBar = {
@@ -60,7 +68,8 @@ fun SearchScreen(onNavigateBack: () -> Unit) {
             },
         ) { innerPadding ->
             LoadingComponent(modifier = Modifier.padding(innerPadding))
-            ItemsComponent(modifier = Modifier.padding(innerPadding))
+            ItemsComponent(modifier = Modifier.padding(innerPadding),
+                onNavigateToDetail = onNavigateToDetail)
         }
     }
 }
@@ -142,7 +151,9 @@ fun LoadingComponent(modifier: Modifier = Modifier, viewModel: SearchViewModel =
 }
 
 @Composable
-fun ItemsComponent(modifier: Modifier = Modifier, viewModel: SearchViewModel = koinViewModel()) {
+fun ItemsComponent(modifier: Modifier = Modifier,
+                   viewModel: SearchViewModel = koinViewModel(),
+                   onNavigateToDetail: (objectId: Int) -> Unit) {
     val queryState = viewModel.queryFlow.collectAsStateWithLifecycle()
     val resultsState = viewModel.results.collectAsStateWithLifecycle()
     val searchingState = viewModel.searching.collectAsStateWithLifecycle()
@@ -159,21 +170,27 @@ fun ItemsComponent(modifier: Modifier = Modifier, viewModel: SearchViewModel = k
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append("${resultsState.value.size}")
                     }
-                    append(" have been found")
+                    append(" objects have been found")
                 },
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
         }
         itemsIndexed(resultsState.value) { index, item ->
-            ElevatedCardExample(item)
+            MuseumCard(item, {
+                onNavigateToDetail(item.id)
+            })
         }
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun ElevatedCardExample(item: MuseumObject) {
+fun MuseumCard(item: MuseumObject, onClick: () -> Unit) {
     ElevatedCard(
+        modifier = Modifier.clickable {
+            onClick()
+        },
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
         )
@@ -188,14 +205,12 @@ fun ElevatedCardExample(item: MuseumObject) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.secondary
             )
-//            Spacer(modifier = Modifier.height(8.dp))
-//            Text(
-//                text = "This is a brief description that gives more detail about the content of the card.",
-//                style = MaterialTheme.typography.bodyMedium
-//            )
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { /* TODO: Handle click action */ }) {
-                Text(text = "More Details")
+            if (item.image.isNotBlank()) {
+                GlideImage(
+                    model = item.image,
+                    contentDescription = ""
+                )
             }
         }
     }

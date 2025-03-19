@@ -46,6 +46,10 @@ fun Navigation() {
         composable<SearchRoute> {
             SearchScreen(onNavigateBack = {
                 navController.popBackStack()
+            }, onNavigateToDetail = { objectId ->
+                run {
+                    navController.navigate(route = DetailRoute(objectId))
+                }
             })
         }
         composable<DetailRoute> {

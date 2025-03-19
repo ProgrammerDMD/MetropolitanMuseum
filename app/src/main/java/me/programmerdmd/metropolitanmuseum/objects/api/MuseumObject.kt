@@ -8,7 +8,7 @@ data class MuseumObject(
     @Json(name = "objectID") val id: Int,
     @Json(name = "title") val title: String,
     @Json(name = "artistDisplayName") val artist: String,
-    @Json(name = "primaryImage") val image: String,
+    @Json(name = "primaryImageSmall") val image: String,
     @Json(name = "additionalImages") val additionalImages: List<String>,
     @Json(name = "objectDate") val date: String,
     @Json(name = "department") val department: String,

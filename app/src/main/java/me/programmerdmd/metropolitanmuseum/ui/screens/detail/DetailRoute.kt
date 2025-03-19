@@ -3,6 +3,6 @@ package me.programmerdmd.metropolitanmuseum.ui.screens.detail
 import kotlinx.serialization.Serializable
 
 @Serializable
-object DetailRoute {
-
-}
+data class DetailRoute(
+    val objectId: Int
+)

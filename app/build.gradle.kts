@@ -98,4 +98,9 @@ dependencies {
     // Koin
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
+
+    // Glide
+    implementation(libs.glide)
+    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
+
 }
