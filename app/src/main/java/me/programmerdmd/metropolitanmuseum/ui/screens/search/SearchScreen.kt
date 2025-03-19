@@ -72,7 +72,7 @@ fun SearchScreen(onNavigateBack: () -> Unit,
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopBar(onNavigateBack: () -> Unit, viewModel: SearchViewModel = koinViewModel()) {
-    var text by remember { mutableStateOf("") }
+    var text by remember { mutableStateOf(viewModel.queryFlow.value) }
     val focusManager = LocalFocusManager.current
 
     TopAppBar(
