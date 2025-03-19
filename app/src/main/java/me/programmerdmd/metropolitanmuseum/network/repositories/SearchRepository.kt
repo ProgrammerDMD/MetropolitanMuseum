@@ -1,20 +1,22 @@
 package me.programmerdmd.metropolitanmuseum.network.repositories
 
+import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
-import me.programmerdmd.metropolitanmuseum.network.api.MuseumAPI
-import me.programmerdmd.metropolitanmuseum.network.api.museumAPI
+import me.programmerdmd.metropolitanmuseum.network.api.MuseumClient
 import me.programmerdmd.metropolitanmuseum.objects.api.MuseumObject
 
 interface SearchRepository {
     suspend fun search(query: String): List<MuseumObject>
 }
 
-class SearchRepositoryImpl() : SearchRepository {
+class SearchRepositoryImpl(
+    context: Context
+) : SearchRepository {
 
-    private val api: MuseumAPI = museumAPI
+    private val api = MuseumClient(context).museumAPI
 
     override suspend fun search(query: String): List<MuseumObject> = withContext(Dispatchers.IO) {
         val response = api.search(query)
