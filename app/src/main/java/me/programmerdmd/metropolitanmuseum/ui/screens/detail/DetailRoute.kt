@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class DetailRoute(
-    val objectId: Int
+    val objectId: Int,
+    val title: String
 )

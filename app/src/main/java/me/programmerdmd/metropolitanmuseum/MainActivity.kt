@@ -46,14 +46,16 @@ fun Navigation() {
         composable<SearchRoute> {
             SearchScreen(onNavigateBack = {
                 navController.popBackStack()
-            }, onNavigateToDetail = { objectId ->
+            }, onNavigateToDetail = { objectId, title ->
                 run {
-                    navController.navigate(route = DetailRoute(objectId))
+                    navController.navigate(route = DetailRoute(objectId, title))
                 }
             })
         }
         composable<DetailRoute> {
-            DetailScreen()
+            DetailScreen(onNavigateBack = {
+                navController.popBackStack()
+            })
         }
     }
 }

@@ -78,7 +78,7 @@ interface MuseumAPI {
     @GET("objects/{id}")
     suspend fun getObject(
         @Path("id") id: Int
-    ): Response<MuseumObject>
+    ): Response<MuseumObject?>
 
 
 }

@@ -1,5 +1,7 @@
 package me.programmerdmd.metropolitanmuseum.di
 
+import me.programmerdmd.metropolitanmuseum.network.repositories.MuseumRepository
+import me.programmerdmd.metropolitanmuseum.network.repositories.MuseumRepositoryImpl
 import me.programmerdmd.metropolitanmuseum.network.repositories.SearchRepository
 import me.programmerdmd.metropolitanmuseum.network.repositories.SearchRepositoryImpl
 import me.programmerdmd.metropolitanmuseum.ui.screens.detail.DetailScreenViewModel
@@ -13,4 +15,5 @@ val appModule = module {
     viewModelOf(::SearchViewModel)
     viewModelOf(::DetailScreenViewModel)
     singleOf(::SearchRepositoryImpl) bind SearchRepository::class
+    singleOf(::MuseumRepositoryImpl) bind MuseumRepository::class
 }

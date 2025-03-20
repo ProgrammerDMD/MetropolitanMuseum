@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.programmerdmd.metropolitanmuseum.network.repositories.SearchRepository
 import me.programmerdmd.metropolitanmuseum.objects.api.MuseumObject
+import java.io.IOException
 
 @SuppressLint("StaticFieldLeak")
 class SearchViewModel(
@@ -40,7 +41,7 @@ class SearchViewModel(
                     try {
                         val results = searchRepository.search(query)
                         emit(results)
-                    } catch (exception: Exception) {
+                    } catch (exception: IOException) {
                         exception.printStackTrace()
                         val toast = Toast.makeText(context.applicationContext, "Couldn't process this request", Toast.LENGTH_SHORT) // in Activity
                         toast.show()

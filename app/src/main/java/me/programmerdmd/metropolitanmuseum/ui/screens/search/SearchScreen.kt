@@ -55,7 +55,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SearchScreen(onNavigateBack: () -> Unit,
-                 onNavigateToDetail: (objectId: Int) -> Unit) {
+                 onNavigateToDetail: (objectId: Int, title: String) -> Unit) {
     MetropolitanMuseumTheme {
         Scaffold(
             topBar = {
@@ -129,14 +129,14 @@ private fun TopBar(onNavigateBack: () -> Unit, viewModel: SearchViewModel = koin
 }
 
 @Composable
-fun LoadingComponent(modifier: Modifier = Modifier, viewModel: SearchViewModel = koinViewModel()) {
+private fun LoadingComponent(modifier: Modifier = Modifier, viewModel: SearchViewModel = koinViewModel()) {
     val queryState = viewModel.queryFlow.collectAsStateWithLifecycle()
     val state = viewModel.searching.collectAsStateWithLifecycle()
     if (!state.value || queryState.value.isBlank()) return
 
     Column(modifier = modifier.fillMaxWidth().fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,) {
+        verticalArrangement = Arrangement.Center) {
         CircularProgressIndicator(
             modifier = Modifier.width(64.dp),
             color = MaterialTheme.colorScheme.secondary,
@@ -146,9 +146,9 @@ fun LoadingComponent(modifier: Modifier = Modifier, viewModel: SearchViewModel =
 }
 
 @Composable
-fun ItemsComponent(modifier: Modifier = Modifier,
+private fun ItemsComponent(modifier: Modifier = Modifier,
                    viewModel: SearchViewModel = koinViewModel(),
-                   onNavigateToDetail: (objectId: Int) -> Unit) {
+                   onNavigateToDetail: (objectId: Int, title: String) -> Unit) {
     val queryState = viewModel.queryFlow.collectAsStateWithLifecycle()
     val resultsState = viewModel.results.collectAsStateWithLifecycle()
     val searchingState = viewModel.searching.collectAsStateWithLifecycle()
@@ -173,7 +173,7 @@ fun ItemsComponent(modifier: Modifier = Modifier,
         }
         itemsIndexed(resultsState.value) { index, item ->
             MuseumCard(item, {
-                onNavigateToDetail(item.id)
+                onNavigateToDetail(item.id, item.title)
             })
         }
     }
