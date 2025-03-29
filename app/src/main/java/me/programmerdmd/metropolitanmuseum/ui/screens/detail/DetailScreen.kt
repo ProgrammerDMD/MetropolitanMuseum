@@ -14,6 +14,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -56,6 +59,7 @@ fun DetailScreen(onNavigateBack: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopBar(onNavigateBack: () -> Unit, viewModel: DetailScreenViewModel = koinViewModel()) {
+    val favoriteState = viewModel.isFavorite.collectAsStateWithLifecycle()
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -69,6 +73,16 @@ private fun TopBar(onNavigateBack: () -> Unit, viewModel: DetailScreenViewModel 
                 Icon(
                     imageVector = Icons.Default.ArrowBackIosNew,
                     contentDescription = "Navigate to Search"
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = {
+                viewModel.toggleFavorite()
+            }) {
+                Icon(
+                    imageVector = if (favoriteState.value) Icons.Default.Star else Icons.Default.StarBorder,
+                    contentDescription = "Add to Favorite"
                 )
             }
         }
@@ -141,16 +155,21 @@ private fun MuseumComponent(modifier: Modifier = Modifier, viewModel: DetailScre
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Medium)
         Spacer(modifier = Modifier.height(16.dp))
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            GlideImage(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1.5f),
-                model = museumObject.image,
-                contentDescription = ""
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+
+        if (museumObject.image.isNotBlank()) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                GlideImage(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1.5f),
+                    model = museumObject.image,
+                    contentDescription = ""
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
 
         if (museumObject.additionalImages.isNotEmpty()) {

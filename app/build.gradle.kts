@@ -103,4 +103,9 @@ dependencies {
     implementation(libs.glide)
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
 
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.paging)
+
 }
