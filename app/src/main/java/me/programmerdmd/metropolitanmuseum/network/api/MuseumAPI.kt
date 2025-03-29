@@ -27,7 +27,7 @@ private fun hasNetwork(context: Context): Boolean {
 class MuseumClient(
     context: Context
 ) {
-    private val cacheSize = (5 * 1024 * 1024).toLong()
+    private val cacheSize = (100 * 1024 * 1024).toLong()
     private val myCache = Cache(context.cacheDir, cacheSize)
     private val okHttpClient = OkHttpClient.Builder()
         .cache(myCache)
@@ -69,6 +69,8 @@ class MuseumClient(
 }
 
 interface MuseumAPI {
+    @GET("objects")
+    suspend fun getObjects(): Response<SearchObject>
 
     @GET("search")
     suspend fun search(

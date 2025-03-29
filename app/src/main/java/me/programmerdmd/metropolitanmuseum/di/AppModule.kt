@@ -9,6 +9,7 @@ import me.programmerdmd.metropolitanmuseum.network.repositories.SearchRepository
 import me.programmerdmd.metropolitanmuseum.objects.database.AppDatabase
 import me.programmerdmd.metropolitanmuseum.objects.database.FavoriteDao
 import me.programmerdmd.metropolitanmuseum.ui.screens.detail.DetailScreenViewModel
+import me.programmerdmd.metropolitanmuseum.ui.screens.home.HomeScreenViewModel
 import me.programmerdmd.metropolitanmuseum.ui.screens.search.SearchViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.singleOf
@@ -27,6 +28,7 @@ val appModule = module {
 
     viewModelOf(::SearchViewModel)
     viewModelOf(::DetailScreenViewModel)
+    viewModelOf(::HomeScreenViewModel)
     singleOf(::SearchRepositoryImpl) bind SearchRepository::class
     singleOf(::MuseumRepositoryImpl) bind MuseumRepository::class
 }

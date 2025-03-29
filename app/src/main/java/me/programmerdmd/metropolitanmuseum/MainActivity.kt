@@ -41,6 +41,10 @@ fun Navigation() {
         composable<HomeRoute> {
             HomeScreen(onSearch = {
                 navController.navigate(route = SearchRoute)
+            }, onNavigateToDetail = { objectId, title ->
+                run {
+                    navController.navigate(route = DetailRoute(objectId, title))
+                }
             })
         }
         composable<SearchRoute> {
