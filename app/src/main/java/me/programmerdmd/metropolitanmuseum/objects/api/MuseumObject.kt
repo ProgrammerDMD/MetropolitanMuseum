@@ -13,5 +13,6 @@ data class MuseumObject(
     @Json(name = "objectDate") val date: String,
     @Json(name = "department") val department: String,
     @Json(name = "country") val country: String,
-    @Json(name = "state") val state: String
+    @Json(name = "state") val state: String,
+    @Json(name = "medium") val medium: String
 )
