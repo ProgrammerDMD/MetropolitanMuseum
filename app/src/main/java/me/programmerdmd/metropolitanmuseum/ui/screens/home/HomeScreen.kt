@@ -17,7 +17,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
@@ -46,11 +48,18 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(onSearch: () -> Unit,
-               onNavigateToDetail: (objectId: Int, title: String) -> Unit) {
+               onNavigateToDetail: (objectId: Int, title: String) -> Unit,
+               onNavigateToTrending: () -> Unit,
+               onNavigateToFavorites: () -> Unit) {
     MetropolitanMuseumTheme {
         Scaffold(
             topBar = { TopBar(onSearch) },
-            bottomBar = { BottomBar() }
+            bottomBar = { BottomBar(
+                route = "Home",
+                onNavigateToHome = {},
+                onNavigateToTrending = onNavigateToTrending,
+                onNavigateToFavorites = onNavigateToFavorites
+            ) }
         ) { innerPadding ->
             ItemsComponent(modifier = Modifier.padding(innerPadding),
                 onNavigateToDetail = onNavigateToDetail)
@@ -60,7 +69,7 @@ fun HomeScreen(onSearch: () -> Unit,
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopBar(onSearch: () -> Unit = {}) {
+fun TopBar(onSearch: () -> Unit = {}) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -81,18 +90,23 @@ private fun TopBar(onSearch: () -> Unit = {}) {
 }
 
 @Composable
-private fun BottomBar() {
+fun BottomBar(route: String,
+              onNavigateToHome: () -> Unit,
+              onNavigateToTrending: () -> Unit,
+              onNavigateToFavorites: () -> Unit) {
     NavigationBar {
         // Home Button
         NavigationBarItem(
             icon = {
-                Icon(imageVector = Icons.Filled.Home, contentDescription = "Home")
+                Icon(imageVector = if (route == "Home") Icons.Filled.Home else Icons.Outlined.Home, contentDescription = "Home")
             },
             label = {
                 Text("Home")
             },
-            selected = true,
-            onClick = {}
+            selected = (route == "Home"),
+            onClick = {
+                onNavigateToHome()
+            }
         )
 
         // Trending Button
@@ -103,20 +117,24 @@ private fun BottomBar() {
             label = {
                 Text("Trending")
             },
-            selected = false,
-            onClick = {}
+            selected = (route == "Trending"),
+            onClick = {
+                onNavigateToTrending()
+            }
         )
 
         // Favorites Button
         NavigationBarItem(
             icon = {
-                Icon(imageVector = Icons.Filled.StarBorder, contentDescription = "Favorites")
+                Icon(imageVector = if (route == "Favorites") Icons.Filled.Star else Icons.Filled.StarBorder, contentDescription = "Favorites")
             },
             label = {
                 Text("Favorites")
             },
-            selected = false,
-            onClick = {}
+            selected = (route == "Favorites"),
+            onClick = {
+                onNavigateToFavorites()
+            }
         )
     }
 }
