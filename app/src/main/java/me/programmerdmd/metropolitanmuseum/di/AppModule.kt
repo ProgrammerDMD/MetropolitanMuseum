@@ -4,8 +4,6 @@ import android.app.Application
 import androidx.room.Room
 import me.programmerdmd.metropolitanmuseum.network.repositories.MuseumRepository
 import me.programmerdmd.metropolitanmuseum.network.repositories.MuseumRepositoryImpl
-import me.programmerdmd.metropolitanmuseum.network.repositories.SearchRepository
-import me.programmerdmd.metropolitanmuseum.network.repositories.SearchRepositoryImpl
 import me.programmerdmd.metropolitanmuseum.objects.database.AppDatabase
 import me.programmerdmd.metropolitanmuseum.objects.database.FavoriteDao
 import me.programmerdmd.metropolitanmuseum.ui.screens.detail.DetailScreenViewModel
@@ -29,7 +27,6 @@ val appModule = module {
     viewModelOf(::SearchViewModel)
     viewModelOf(::DetailScreenViewModel)
     viewModelOf(::HomeScreenViewModel)
-    singleOf(::SearchRepositoryImpl) bind SearchRepository::class
     singleOf(::MuseumRepositoryImpl) bind MuseumRepository::class
 }
 

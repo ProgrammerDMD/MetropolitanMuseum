@@ -9,14 +9,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,6 +26,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -37,19 +36,24 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import me.programmerdmd.metropolitanmuseum.ui.screens.home.LoadingComponent
 import me.programmerdmd.metropolitanmuseum.ui.theme.MetropolitanMuseumTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun DetailScreen(onNavigateBack: () -> Unit) {
+fun DetailScreen(onNavigateBack: () -> Unit, viewModel: DetailScreenViewModel = koinViewModel()) {
+    val isSearching by viewModel.searchingFlow.collectAsStateWithLifecycle()
     MetropolitanMuseumTheme {
         Scaffold(
             topBar = {
                 TopBar(onNavigateBack)
             },
         ) { innerPadding ->
-            LoadingComponent(modifier = Modifier.padding(innerPadding))
-            MuseumComponent(modifier = Modifier.padding(innerPadding))
+            if (isSearching) {
+                LoadingComponent()
+            } else {
+                MuseumComponent(modifier = Modifier.padding(innerPadding))
+            }
         }
     }
 }
@@ -57,7 +61,7 @@ fun DetailScreen(onNavigateBack: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopBar(onNavigateBack: () -> Unit, viewModel: DetailScreenViewModel = koinViewModel()) {
-    val favoriteState = viewModel.isFavorite.collectAsStateWithLifecycle()
+    val isFavorite by viewModel.isFavorite.collectAsStateWithLifecycle()
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -79,30 +83,12 @@ private fun TopBar(onNavigateBack: () -> Unit, viewModel: DetailScreenViewModel 
                 viewModel.toggleFavorite()
             }) {
                 Icon(
-                    imageVector = if (favoriteState.value) Icons.Default.Star else Icons.Default.StarBorder,
+                    imageVector = if (isFavorite) Icons.Default.Star else Icons.Default.StarBorder,
                     contentDescription = "Add to Favorite"
                 )
             }
         }
     )
-}
-
-@Composable
-private fun LoadingComponent(modifier: Modifier = Modifier, viewModel: DetailScreenViewModel = koinViewModel()) {
-    val searchingState = viewModel.searchingFlow.collectAsStateWithLifecycle()
-    if (!searchingState.value) return
-
-    Column(modifier = modifier
-        .fillMaxWidth()
-        .fillMaxHeight(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center) {
-        CircularProgressIndicator(
-            modifier = Modifier.width(64.dp),
-            color = MaterialTheme.colorScheme.secondary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-        )
-    }
 }
 
 @Composable
@@ -128,15 +114,13 @@ private fun Info(left: String?, right: String?) {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
 private fun MuseumComponent(modifier: Modifier = Modifier, viewModel: DetailScreenViewModel = koinViewModel()) {
-    val searchingState = viewModel.searchingFlow.collectAsStateWithLifecycle()
-    if (searchingState.value) return
-
-    val objectState = viewModel.museumFlow.collectAsStateWithLifecycle()
-    val museumObject = objectState.value ?: return
+    val stateObject by viewModel.museumFlow.collectAsStateWithLifecycle()
+    val museumObject = stateObject ?: return
 
     val carouselState = rememberCarouselState {
         museumObject.additionalImages.size
     }
+
     val scrollState = rememberScrollState()
     Column(modifier = modifier
         .fillMaxWidth()

@@ -33,11 +33,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import me.programmerdmd.metropolitanmuseum.objects.api.MuseumObject
@@ -125,8 +125,9 @@ private fun BottomBar() {
 private fun ItemsComponent(modifier: Modifier = Modifier,
                            viewModel: HomeScreenViewModel = koinViewModel(),
                            onNavigateToDetail: (objectId: Int, title: String) -> Unit) {
-    val items by viewModel.itemsFlow.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val items by viewModel.itemsFlow.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val isLastPage by viewModel.isLastPage.collectAsStateWithLifecycle()
 
     LazyVerticalGrid(modifier = modifier, columns = GridCells.Adaptive(minSize = 256.dp),
         contentPadding = PaddingValues(18.dp),
@@ -145,23 +146,25 @@ private fun ItemsComponent(modifier: Modifier = Modifier,
             }
         }
 
-        item{
-            LaunchedEffect(key1 = items.size){
-                viewModel.loadMoreItems()
+        if (!isLoading && !isLastPage) {
+            item {
+                LaunchedEffect(key1 = items.size) {
+                    viewModel.loadMoreItems()
+                }
             }
         }
     }
 }
 
 @Composable
-private fun LoadingComponent(modifier: Modifier = Modifier) {
+fun LoadingComponent(modifier: Modifier = Modifier) {
     Column(modifier = modifier
         .fillMaxWidth()
         .fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center) {
         CircularProgressIndicator(
-            modifier = Modifier.width(64.dp),
+            modifier = Modifier.width(64.dp).height(64.dp),
             color = MaterialTheme.colorScheme.secondary,
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
         )
