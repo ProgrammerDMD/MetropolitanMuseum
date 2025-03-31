@@ -54,7 +54,7 @@ class SearchViewModel(
                         }
                     }
                 }.collect { list ->
-                    _results.value += list
+                    _results.value += list.filterNotNull()
                 }
         }
     }

@@ -36,7 +36,7 @@ class HomeScreenViewModel(
             if (objects.isEmpty()) {
                 _isLastPage.value = true
             } else {
-                _itemsFlow.value += objects
+                _itemsFlow.value += objects.filterNotNull()
                 currentPage++
             }
             _isLoading.value = false

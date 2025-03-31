@@ -49,6 +49,8 @@ class MuseumClient(
             } else {
                 val cacheControl = CacheControl.Builder()
                     .maxAge(30, TimeUnit.MINUTES)
+                    .onlyIfCached()
+                    .maxStale(7, TimeUnit.DAYS)
                     .build()
 
                 request = request.newBuilder()
