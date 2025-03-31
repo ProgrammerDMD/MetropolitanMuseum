@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import me.programmerdmd.metropolitanmuseum.network.repositories.MuseumRepository
 import me.programmerdmd.metropolitanmuseum.objects.api.MuseumObject
@@ -27,16 +28,17 @@ class FavoritesScreenViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            favoriteDao.getAllFlow().collect { data ->
+            favoriteDao.getAllFlow().drop(1).collect { data ->
                 _isLoading.value = true
+                _isLastPage.value = false
 
                 _itemsFlow.value = emptyList()
                 currentPage = 0
                 _loadMoreItems()
+
                 _isLoading.value = false
             }
         }
-        loadMoreItems()
     }
 
     private suspend fun _loadMoreItems() {
@@ -55,7 +57,7 @@ class FavoritesScreenViewModel(
         _isLoading.value = true
         viewModelScope.launch(Dispatchers.IO) {
             _loadMoreItems()
+            _isLoading.value = false
         }
-        _isLoading.value = false
     }
 }

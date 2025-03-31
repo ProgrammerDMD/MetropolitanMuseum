@@ -28,11 +28,7 @@ class MuseumRepositoryImpl(
         val response = api.getObjects()
         val searchObject = response.body()
 
-        if (!response.isSuccessful || searchObject == null) {
-            throw Exception("Search failed!")
-        }
-
-        if (searchObject.objectIDs == null) {
+        if (!response.isSuccessful || searchObject == null || searchObject.objectIDs == null) {
             return@withContext emptyList()
         }
 
@@ -40,7 +36,7 @@ class MuseumRepositoryImpl(
         val startIndex = page * pageSize
         val endIndex = minOf(startIndex + pageSize, objectIds.size)
 
-        if (startIndex >= endIndex) {
+        if (startIndex > endIndex) {
             return@withContext emptyList()
         }
 
@@ -66,7 +62,7 @@ class MuseumRepositoryImpl(
         val startIndex = page * pageSize
         val endIndex = minOf(startIndex + pageSize, favoriteObjects.size)
 
-        if (startIndex >= endIndex) {
+        if (startIndex > endIndex) {
             return@withContext emptyList()
         }
 
@@ -91,7 +87,7 @@ class MuseumRepositoryImpl(
         val museumObject = response.body()
 
         if (!response.isSuccessful) {
-            throw Exception("Request for getting object failed")
+           return@withContext null
         }
 
         return@withContext museumObject
@@ -101,17 +97,18 @@ class MuseumRepositoryImpl(
         val response = api.search(query)
         val searchObject = response.body()
 
-        if (!response.isSuccessful || searchObject == null) {
-            throw Exception("Search failed!")
-        }
-
-        if (searchObject.objectIDs == null) {
+        if (!response.isSuccessful || searchObject == null || searchObject.objectIDs == null) {
             return@withContext emptyList()
         }
 
         val objectIds = searchObject.objectIDs
         val startIndex = page * pageSize
         val endIndex = minOf(startIndex + pageSize, objectIds.size)
+
+        if (startIndex > endIndex) {
+            return@withContext emptyList()
+        }
+
         val idsToFetch = objectIds.subList(startIndex, endIndex)
 
         val museumObjects = idsToFetch.map { objectId ->
