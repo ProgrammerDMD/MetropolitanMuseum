@@ -12,6 +12,9 @@ interface FavoriteDao {
     @Query("SELECT * FROM favoriteobject")
     fun getAll(): List<FavoriteObject>
 
+    @Query("SELECT * FROM favoriteobject")
+    fun getAllFlow(): Flow<List<FavoriteObject>>
+
     @Query("SELECT EXISTS(SELECT 1 FROM favoriteobject WHERE id = :id)")
     fun exists(id: Int): Flow<Boolean>
 

@@ -10,7 +10,7 @@ import me.programmerdmd.metropolitanmuseum.network.repositories.MuseumRepository
 import me.programmerdmd.metropolitanmuseum.objects.api.MuseumObject
 
 class HomeScreenViewModel(
-    private val repository: MuseumRepository,
+    private val repository: MuseumRepository
 ) : ViewModel() {
 
     private val _itemsFlow = MutableStateFlow<List<MuseumObject>>(emptyList())

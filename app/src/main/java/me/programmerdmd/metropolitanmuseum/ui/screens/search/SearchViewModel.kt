@@ -21,7 +21,7 @@ data class SearchQuery(
 
 @SuppressLint("StaticFieldLeak")
 class SearchViewModel(
-    private val repository: MuseumRepository,
+    private val repository: MuseumRepository
 ) : ViewModel() {
 
     private val _queryFlow = MutableStateFlow(SearchQuery("", 0))
